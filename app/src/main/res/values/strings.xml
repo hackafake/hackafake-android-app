@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">RokersFun-AndroidThingController</string>
     <string name="top_fake">Top Fake News</string>
+    <string name="challenge">Ready for a challenge?</string>
+    <string name="dashboard">Go back to home</string>
+    <string name="fake_new">That's fake!</string>
 </resources>

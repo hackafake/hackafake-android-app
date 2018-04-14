@@ -7,7 +7,7 @@
     <application>
         <uses-library android:name="com.google.android.things"/>
 
-        <activity android:name=".DashboardActivity">
+        <activity android:name=".DashboardActivity" android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,6 +19,9 @@
                 <category android:name="android.intent.category.IOT_LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".ChallengeActivity" android:launchMode="singleTask">
         </activity>
     </application>
 

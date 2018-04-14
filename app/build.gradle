@@ -28,4 +28,5 @@ dependencies {
     implementation 'com.googlecode.json-simple:json-simple:1.1'
     implementation 'com.google.android.things.contrib:driver-rainbowhat:0.10'
 
+    implementation 'org.jetbrains:annotations-java5:15.0'
 }
