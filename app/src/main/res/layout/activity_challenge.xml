@@ -7,53 +7,62 @@
     android:orientation="vertical"
     tools:context=".DashboardActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
+    <Button
+        android:id="@+id/button_ready"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/sym_def_app_icon"
+        android:layout_height="match_parent"
+        android:text="@string/ready_s"
         android:visibility="gone" />
 
     <LinearLayout
+        android:id="@+id/challenge_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/button_lx"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/fake_new" />
-
-        <Button
-            android:id="@+id/button_rx"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/fake_new" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <WebView
-            android:id="@+id/webView_lx"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-        </WebView>
+            <Button
+                android:id="@+id/button_lx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/fake_new" />
 
-        <WebView
-            android:id="@+id/webView_rx"
+            <Button
+                android:id="@+id/button_rx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/fake_new" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <WebView
+                android:id="@+id/webView_lx"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+            </WebView>
+
+            <WebView
+                android:id="@+id/webView_rx"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <Button
@@ -61,4 +70,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/dashboard" />
+
 </LinearLayout>

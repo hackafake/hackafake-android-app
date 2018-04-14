@@ -3,5 +3,6 @@
     <string name="top_fake">Top Fake News</string>
     <string name="challenge">Ready for a challenge?</string>
     <string name="dashboard">Go back to home</string>
+    <string name="ready_s">Ready?</string>
     <string name="fake_new">That's fake!</string>
 </resources>
