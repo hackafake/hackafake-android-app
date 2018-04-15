@@ -1,5 +1,7 @@
 package com.example.alessandro.rokersfun_androidthingcontroller;
 
+import android.content.Context;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.util.Log;
 
@@ -17,16 +19,18 @@ public class Counter implements Runnable {
     private Handler handler;
     private AlphanumericDisplay display;
     private FakeMeter fakeMeter;
+    private int pFake_count=0,pReal_count=0;
+    private MediaPlayer mp;
 
     private static long DELAY_MILLIS=2*1000;
     //TODO: set right url address
-    private static String URL="http://api.rokers.fun:8080/counter";
+    private static String URL=Parameters.BASE_URL + "/counter";
 
     private static String COUNTER_FAKE_FIELD = "fake";
     private static String COUNTER_REAL_FIELD = "real";
 
 
-    public Counter() {
+    public Counter(Context appContext) {
         this.handler=new Handler();
         try {
             this.display = RainbowHat.openDisplay();
@@ -35,6 +39,8 @@ public class Counter implements Runnable {
             //TODO: handle exception
             Log.d("ERROR","Unable to open alphanumeric dispaly");
         }
+        mp = MediaPlayer.create(appContext,R.raw.alarm);
+        fakeMeter = new FakeMeter(FakeMeter.HW_RAINBOW_HAT);
         handler.post(this);
     }
 
@@ -49,6 +55,7 @@ public class Counter implements Runnable {
 
     public void close() {
         handler.removeCallbacks(this);
+        fakeMeter.close();
     }
 
     @Override
@@ -74,11 +81,23 @@ public class Counter implements Runnable {
             updateCount(fake_count);
             double density;
             try {
-                density = fake_count/(real_count+fake_count);
+                density = ((double)fake_count)/((double)(real_count+fake_count));
             } catch (ArithmeticException e) {
                 density = 0;
             }
             fakeMeter.updateCount(density);
+
+            //play sound if new fake news
+            if(fake_count-pFake_count > 0 && !mp.isPlaying() && pFake_count > 0) {
+                Log.d("INFO", "playing sound!");
+                mp.start();
+                pFake_count = fake_count;
+                pReal_count = real_count;
+            } else if (pFake_count <= 0) {
+                pFake_count = fake_count;
+                pReal_count = real_count;
+            }
+
         }
     }
 }

@@ -27,7 +27,7 @@ public class DashboardActivity extends Activity implements Runnable {
 
     private static String TOPIC = "fakenews";
     private static int QUANTITY = 1;
-    private static String URL = "http://api.rokers.fun:8080/" + TOPIC + "?qnt=" + Integer.toString(QUANTITY);
+    private static String URL = Parameters.BASE_URL + "/" + TOPIC + "?qnt=" + Integer.toString(QUANTITY);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +40,7 @@ public class DashboardActivity extends Activity implements Runnable {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        counter = new Counter();
+        counter = new Counter(this);
         mCounter = findViewById(R.id.textView_counter);
         webView = findViewById(R.id.webView);
         handler = new Handler();

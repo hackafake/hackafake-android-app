@@ -9,9 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 
-import com.google.android.things.contrib.driver.ht16k33.Ht16k33;
 import com.google.android.things.contrib.driver.rainbowhat.RainbowHat;
 
 import org.json.JSONException;
@@ -26,14 +26,14 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
 
     //TODO: check url
     //TODO: static base URL and PORT class (maybe also other parameters)
-    private static String URL="http://api.rokers.fun:8080/challenge";
+    private static String URL=Parameters.BASE_URL + "/challenge";
 
     private Button mButtonRx, mButtonLx, mButtonReady;
     private View mLayoutChallenge;
     private ViewGroup mMainLayout;
     private WebView mWebViewRx, mWebViewLx;
     private Random random;
-    private int pos;
+    private int pos, loading=0;
     private boolean wait=true;
     private com.google.android.things.contrib.driver.button.Button buttonA, buttonB;
 
@@ -57,6 +57,9 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         mWebViewRx = findViewById(R.id.webView_rx);
         mLayoutChallenge = findViewById(R.id.challenge_layout);
         mMainLayout = findViewById(R.id.mainLayout);
+
+        mWebViewLx.setWebViewClient(new MyWebViewClient());
+        mWebViewRx.setWebViewClient(new MyWebViewClient());
 
         try {
             buttonA = RainbowHat.openButtonA();
@@ -112,9 +115,8 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         pos=random.nextInt(2);
 
         mWebViewLx.loadUrl((pos==0) ? urlFake : urlReal);
-        mWebViewLx.loadUrl((pos==1) ? urlFake : urlReal);
+        mWebViewRx.loadUrl((pos==1) ? urlFake : urlReal);
 
-        changeVisibility();
     }
 
     private void changeVisibility() {
@@ -191,6 +193,19 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
             } catch (NullPointerException e) {
                 Log.d("ERROR", "NullPointerException");
             }
+        }
+    }
+
+    private class MyWebViewClient extends WebViewClient {
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            if(++loading == 2) {
+                changeVisibility();
+                loading=0;
+            }
+
         }
     }
 

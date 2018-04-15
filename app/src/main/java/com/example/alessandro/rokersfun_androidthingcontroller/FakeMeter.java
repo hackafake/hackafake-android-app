@@ -19,15 +19,20 @@ public class FakeMeter {
         if(hw_type == HW_RAINBOW_HAT)
             fakeMeter_handler = new RainbowHat_handler();
         else if(hw_type == HW_RPI3)
-            fakeMeter_handler = new RainbowHat_handler();
+            fakeMeter_handler = new RPI3_handler();
     }
 
     public void updateCount(double density) {
         fakeMeter_handler.displayDensiy(density);
     }
 
+    public void close() {
+        fakeMeter_handler.close();
+    }
+
     private abstract class FakeMeter_handler {
         public abstract void displayDensiy(double density);
+        public abstract void close();
     }
 
     private class RainbowHat_handler extends FakeMeter_handler {
@@ -36,16 +41,19 @@ public class FakeMeter {
 
         @Override
         public void displayDensiy(double density) {
+            Log.d("INFO","Try displaying led denisty");
             if (ledStrip == null)
                 try {
                     ledStrip = RainbowHat.openLedStrip();
                     ledStrip.setBrightness(31);
                 } catch (IOException e) {
+                    Log.d("INFO","Error opening strip led");
                     return;
                 }
             int[] rainbow = new int[RainbowHat.LEDSTRIP_LENGTH];
-            int n=(int)(density * (rainbow.length * 1.0));
-            for(int i=0;i<n;i++) {
+            int n=rainbow.length - (int)Math.round(density * (rainbow.length * 1.0));
+            Log.d("INFO","N: " + n + " DENSITY: " + density);
+            for(int i=rainbow.length-1;i>=n;i--) {
                 rainbow[i] = color;
             }
             try {
@@ -69,7 +77,12 @@ public class FakeMeter {
     private class RPI3_handler extends FakeMeter_handler {
         @Override
         public void displayDensiy(double density) {
+            return;
+        }
 
+        @Override
+        public void close() {
+            return;
         }
     }
 }
