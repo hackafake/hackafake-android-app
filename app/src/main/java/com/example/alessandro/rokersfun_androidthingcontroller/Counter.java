@@ -72,7 +72,13 @@ public class Counter implements Runnable {
                 e.printStackTrace();
             }
             updateCount(fake_count);
-            fakeMeter.updateCount(fake_count/(real_count+fake_count));
+            double density;
+            try {
+                density = fake_count/(real_count+fake_count);
+            } catch (ArithmeticException e) {
+                density = 0;
+            }
+            fakeMeter.updateCount(density);
         }
     }
 }
