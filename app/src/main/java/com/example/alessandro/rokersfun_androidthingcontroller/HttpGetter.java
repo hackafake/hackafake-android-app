@@ -36,7 +36,7 @@ public class HttpGetter extends AsyncTask<String, String, String> {
         } catch (MalformedURLException e) {
             Log.d("ERROR", "MalformedURLException");
         } catch (IOException e) {
-            Log.d("ERROR", "IOException");
+            Log.d("ERROR", "IOException Getter");
         }
         return null;
     }

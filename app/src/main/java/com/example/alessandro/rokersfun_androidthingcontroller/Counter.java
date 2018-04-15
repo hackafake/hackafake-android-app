@@ -30,7 +30,7 @@ public class Counter implements Runnable {
     private static String COUNTER_REAL_FIELD = "real";
 
 
-    public Counter(Context appContext) {
+    public Counter(Context appContext, MediaPlayer m) {
         this.handler=new Handler();
         try {
             this.display = RainbowHat.openDisplay();
@@ -39,7 +39,7 @@ public class Counter implements Runnable {
             //TODO: handle exception
             Log.d("ERROR","Unable to open alphanumeric dispaly");
         }
-        mp = MediaPlayer.create(appContext,R.raw.alarm);
+        mp = m;
         fakeMeter = new FakeMeter(FakeMeter.HW_RAINBOW_HAT);
         handler.post(this);
     }
@@ -49,7 +49,7 @@ public class Counter implements Runnable {
             display.display(count);
             display.setEnabled(true);
         } catch (IOException e) {
-            Log.d("ERROR","IOException");
+            Log.d("ERROR","IOException Counter");
         }
     }
 

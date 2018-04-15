@@ -2,6 +2,7 @@ package com.example.alessandro.rokersfun_androidthingcontroller;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,6 +23,7 @@ public class DashboardActivity extends Activity implements Runnable {
     private TextView mCounter;
     private Handler handler;
     private String previousUrl="";
+    private MediaPlayer mediaPlayer;
 
     private static long DELAY_MILLIS = 10 * 1000;
 
@@ -40,7 +42,8 @@ public class DashboardActivity extends Activity implements Runnable {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        counter = new Counter(this);
+        mediaPlayer=MediaPlayer.create(this,R.raw.alarm);
+        counter = new Counter(this,mediaPlayer);
         mCounter = findViewById(R.id.textView_counter);
         webView = findViewById(R.id.webView);
         handler = new Handler();

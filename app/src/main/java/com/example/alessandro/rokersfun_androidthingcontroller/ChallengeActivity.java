@@ -3,6 +3,7 @@ package com.example.alessandro.rokersfun_androidthingcontroller;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -34,6 +35,7 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
     private int pos, loading=0;
     private boolean wait=true;
     private com.google.android.things.contrib.driver.button.Button buttonA, buttonB;
+    private MediaPlayer mediaPlayer_success, mediaPlayer_fail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,8 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         mLayoutChallenge = findViewById(R.id.challenge_layout);
         mLoaderSpiner = findViewById(R.id.loaderSpinner_layout);
         mSpinner = findViewById(R.id.progressBar);
+        mediaPlayer_success = MediaPlayer.create(this,R.raw.success);
+        mediaPlayer_fail = MediaPlayer.create(this,R.raw.fail);
 
         mWebViewLx.setWebViewClient(new MyWebViewClient());
         mWebViewRx.setWebViewClient(new MyWebViewClient());
@@ -151,10 +155,18 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         boolean change=false;
         if(v.equals(mButtonLx) && !wait) {
             mButtonLx.setBackgroundColor((pos == 0) ? Color.RED : Color.GREEN);
+            if(pos==0 && !mediaPlayer_fail.isPlaying() && !mediaPlayer_success.isPlaying())
+                mediaPlayer_fail.start();
+            else if(!mediaPlayer_fail.isPlaying() && !mediaPlayer_success.isPlaying())
+                mediaPlayer_success.start();
             change=true;
             wait=true;
         } else if(v.equals(mButtonRx) && !wait) {
             mButtonRx.setBackgroundColor((pos==1) ? Color.RED : Color.GREEN);
+            if(pos==1 && !mediaPlayer_fail.isPlaying() && !mediaPlayer_success.isPlaying())
+                mediaPlayer_fail.start();
+            else if(!mediaPlayer_fail.isPlaying() && !mediaPlayer_success.isPlaying())
+                mediaPlayer_success.start();
             change=true;
             wait=true;
         }
@@ -233,4 +245,5 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
     }
 
 }
+
 
