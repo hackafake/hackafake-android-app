@@ -16,12 +16,14 @@ import java.io.IOException;
 public class Counter implements Runnable {
     private Handler handler;
     private AlphanumericDisplay display;
+    private FakeMeter fakeMeter;
 
     private static long DELAY_MILLIS=2*1000;
     //TODO: set right url address
-    private static String URL="http://52.212.172.20:8080/counter";
+    private static String URL="http://api.rokers.fun:8080/counter";
 
-    private static String COUNTER_FIELD = "counter";
+    private static String COUNTER_FAKE_FIELD = "fake";
+    private static String COUNTER_REAL_FIELD = "real";
 
 
     public Counter() {
@@ -34,6 +36,15 @@ public class Counter implements Runnable {
             Log.d("ERROR","Unable to open alphanumeric dispaly");
         }
         handler.post(this);
+    }
+
+    public void updateCount(int count) {
+        try {
+            display.display(count);
+            display.setEnabled(true);
+        } catch (IOException e) {
+            Log.d("ERROR","IOException");
+        }
     }
 
     public void close() {
@@ -50,22 +61,18 @@ public class Counter implements Runnable {
 
         @Override
         protected void onPostExecute(String s) {
-            int count=0;
+            int fake_count=0,real_count=0;
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                count=jsonObject.getInt(COUNTER_FIELD);
+                fake_count=jsonObject.getInt(COUNTER_FAKE_FIELD);
+                real_count=jsonObject.getInt(COUNTER_REAL_FIELD);
             } catch (NullPointerException e) {
                 Log.d("ERROR","NullPointerException");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            try {
-                display.display(count);
-                display.setEnabled(true);
-            } catch (IOException e) {
-                Log.d("ERROR","IOException");
-            }
+            updateCount(fake_count);
+            fakeMeter.updateCount(fake_count/(real_count+fake_count));
         }
     }
 }

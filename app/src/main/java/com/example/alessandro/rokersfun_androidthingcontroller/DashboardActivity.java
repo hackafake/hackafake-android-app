@@ -27,7 +27,7 @@ public class DashboardActivity extends Activity implements Runnable {
 
     private static String TOPIC = "fakenews";
     private static int QUANTITY = 1;
-    private static String URL = "http://52.212.172.20:8080/" + TOPIC + "?qnt=" + Integer.toString(QUANTITY);
+    private static String URL = "http://api.rokers.fun:8080/" + TOPIC + "?qnt=" + Integer.toString(QUANTITY);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
