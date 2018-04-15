@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -73,18 +75,20 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
 
                 @Override
                 public void onButtonEvent(com.google.android.things.contrib.driver.button.Button button, boolean pressed) {
-                    mButtonLx.callOnClick();
+                    if(!wait)
+                        mButtonLx.callOnClick();
                 }
             });
             buttonB = RainbowHat.openButtonB();
             buttonB.setOnButtonEventListener(new com.google.android.things.contrib.driver.button.Button.OnButtonEventListener() {
                 @Override
                 public void onButtonEvent(com.google.android.things.contrib.driver.button.Button button, boolean pressed) {
-                    mButtonRx.callOnClick();
+                    if(!wait)
+                        mButtonRx.callOnClick();
                 }
             });
         } catch (IOException e) {
-            Log.d("ERROR","IOException");
+            Log.d("ERROR","IOException Challenge");
         }
 
         mButtonLx.setOnClickListener(this);
@@ -214,7 +218,17 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
                 changeVisibility();
                 loading=0;
             }
+        }
 
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
+            loading=0;
+            mButtonReady.setVisibility(View.VISIBLE);
+            mSpinner.setVisibility(View.GONE);
+            if(mLoaderSpiner.getVisibility() == View.GONE)
+                changeVisibility();
+            mButtonReady.callOnClick();
         }
     }
 
