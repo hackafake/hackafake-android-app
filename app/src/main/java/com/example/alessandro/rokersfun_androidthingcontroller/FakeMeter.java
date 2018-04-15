@@ -35,26 +35,34 @@ public class FakeMeter {
         public abstract void close();
     }
 
+    private int getColor(int pos) {
+        int p = pos/2;
+        if(p < 1)
+            return Color.GREEN;
+        else if(p < 2)
+            return Color.RED | Color.YELLOW;
+        else
+            return Color.RED;
+    }
+
     private class RainbowHat_handler extends FakeMeter_handler {
         private Apa102 ledStrip = null;
         private final int color = Color.RED;
 
         @Override
         public void displayDensiy(double density) {
-            Log.d("INFO","Try displaying led denisty");
             if (ledStrip == null)
                 try {
                     ledStrip = RainbowHat.openLedStrip();
-                    ledStrip.setBrightness(31);
+                    ledStrip.setBrightness(2);
                 } catch (IOException e) {
                     Log.d("INFO","Error opening strip led");
                     return;
                 }
             int[] rainbow = new int[RainbowHat.LEDSTRIP_LENGTH];
             int n=rainbow.length - (int)Math.round(density * (rainbow.length * 1.0));
-            Log.d("INFO","N: " + n + " DENSITY: " + density);
             for(int i=rainbow.length-1;i>=n;i--) {
-                rainbow[i] = color;
+                rainbow[i] = getColor(rainbow.length-1-i);
             }
             try {
                 ledStrip.write(rainbow);

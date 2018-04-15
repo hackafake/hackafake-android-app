@@ -7,10 +7,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import com.google.android.things.contrib.driver.rainbowhat.RainbowHat;
 
@@ -22,15 +22,11 @@ import java.util.Random;
 
 public class ChallengeActivity extends Activity implements View.OnClickListener {
 
-    //TODO: change touch button with physical ones
-
-    //TODO: check url
-    //TODO: static base URL and PORT class (maybe also other parameters)
     private static String URL=Parameters.BASE_URL + "/challenge";
 
     private Button mButtonRx, mButtonLx, mButtonReady;
-    private View mLayoutChallenge;
-    private ViewGroup mMainLayout;
+    private ProgressBar mSpinner;
+    private View mLayoutChallenge, mLoaderSpiner;
     private WebView mWebViewRx, mWebViewLx;
     private Random random;
     private int pos, loading=0;
@@ -41,6 +37,15 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
         ((Button)findViewById(R.id.button_dashboard)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +61,8 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         mWebViewLx = findViewById(R.id.webView_lx);
         mWebViewRx = findViewById(R.id.webView_rx);
         mLayoutChallenge = findViewById(R.id.challenge_layout);
-        mMainLayout = findViewById(R.id.mainLayout);
+        mLoaderSpiner = findViewById(R.id.loaderSpinner_layout);
+        mSpinner = findViewById(R.id.progressBar);
 
         mWebViewLx.setWebViewClient(new MyWebViewClient());
         mWebViewRx.setWebViewClient(new MyWebViewClient());
@@ -110,7 +116,6 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
     }
 
     private void showChallenge(String urlFake, String urlReal) {
-        //TODO: 3,2,1 count, take time
 
         pos=random.nextInt(2);
 
@@ -120,17 +125,16 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
     }
 
     private void changeVisibility() {
-        Log.d("INFO", "Try changing visibility - " + ((mButtonReady.getVisibility() == View.GONE) ? "GONE" : "VISIBLE"));
-        if(mButtonReady.getVisibility() == View.GONE) {
+        if(mLoaderSpiner.getVisibility() == View.GONE) {
             mButtonReady.setClickable(true);
             //show ready button
             mLayoutChallenge.setVisibility(View.GONE);
-            mButtonReady.setVisibility(View.VISIBLE);
+            mLoaderSpiner.setVisibility(View.VISIBLE);
         } else {
             mButtonReady.setClickable(false);
             //show challenge
             mLayoutChallenge.setVisibility(View.VISIBLE);
-            mButtonReady.setVisibility(View.GONE);
+            mLoaderSpiner.setVisibility(View.GONE);
         }
         //reset button background colors
         mButtonRx.setBackgroundResource(android.R.drawable.btn_default);
@@ -140,7 +144,6 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
 
     @Override
     public void onClick(View v) {
-        //TODO: make more user friendly
         boolean change=false;
         if(v.equals(mButtonLx) && !wait) {
             mButtonLx.setBackgroundColor((pos == 0) ? Color.RED : Color.GREEN);
@@ -153,6 +156,10 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         }
         else if(v.equals(mButtonReady) && wait) {
             Log.d("INFO", "Button READY clicked");
+            //show spinner
+            mButtonReady.setVisibility(View.GONE);
+            mSpinner.setVisibility(View.VISIBLE);
+
             new HttpGetter_Challenge().execute(URL);
             wait=false;
         }
@@ -178,9 +185,7 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
             String realNews = "";
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                //TODO: check field
                 fakeNews = jsonObject.getJSONObject(FAKE_FIELD).getString("url");
-                //TODO: check field
                 realNews = jsonObject.getJSONObject(REAL_FIELD).getString("url");
             } catch (NullPointerException e) {
                 Log.d("ERROR", "NullPointerException");
@@ -202,6 +207,10 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             if(++loading == 2) {
+                //show ready button
+                mButtonReady.setVisibility(View.VISIBLE);
+                mSpinner.setVisibility(View.GONE);
+
                 changeVisibility();
                 loading=0;
             }
