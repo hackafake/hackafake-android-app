@@ -33,10 +33,8 @@ public class HttpGetter extends AsyncTask<String, String, String> {
                 buffer.append(line).append("\n");
 
             return buffer.toString();
-        } catch (MalformedURLException e) {
-            Log.d("ERROR", "MalformedURLException");
         } catch (IOException e) {
-            Log.d("ERROR", "IOException Getter");
+            Log.d("ERROR",e.getMessage());
         }
         return null;
     }

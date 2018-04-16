@@ -1,5 +1,6 @@
 package com.example.alessandro.rokersfun_androidthingcontroller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -22,34 +23,28 @@ public class Counter implements Runnable {
     private int pFake_count=0,pReal_count=0;
     private MediaPlayer mp;
 
-    private static long DELAY_MILLIS=2*1000;
-    //TODO: set right url address
-    private static String URL=Parameters.BASE_URL + "/counter";
-
-    private static String COUNTER_FAKE_FIELD = "fake";
-    private static String COUNTER_REAL_FIELD = "real";
+    private final String URL=Parameters.BASE_URL + Parameters.COUNTER_TOPIC;
 
 
-    public Counter(Context appContext, MediaPlayer m) {
+    Counter(Context appContext, MediaPlayer m) {
         this.handler=new Handler();
         try {
             this.display = RainbowHat.openDisplay();
             this.display.setBrightness(Ht16k33.HT16K33_BRIGHTNESS_MAX);
         } catch (IOException e) {
-            //TODO: handle exception
-            Log.d("ERROR","Unable to open alphanumeric dispaly");
+            Log.d("ERROR",e.getMessage());
         }
         mp = m;
         fakeMeter = new FakeMeter(FakeMeter.HW_RAINBOW_HAT);
         handler.post(this);
     }
 
-    public void updateCount(int count) {
+    private void updateCount(int count) {
         try {
             display.display(count);
             display.setEnabled(true);
         } catch (IOException e) {
-            Log.d("ERROR","IOException Counter");
+            Log.d("ERROR",e.getMessage());
         }
     }
 
@@ -61,9 +56,10 @@ public class Counter implements Runnable {
     @Override
     public void run() {
         new HttpGetter_counter().execute(URL);
-        handler.postDelayed(this,DELAY_MILLIS);
+        handler.postDelayed(this,Parameters.COUNTER_DELAY_MILLIS);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class HttpGetter_counter extends HttpGetter {
 
         @Override
@@ -71,25 +67,24 @@ public class Counter implements Runnable {
             int fake_count=0,real_count=0;
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                fake_count=jsonObject.getInt(COUNTER_FAKE_FIELD);
-                real_count=jsonObject.getInt(COUNTER_REAL_FIELD);
-            } catch (NullPointerException e) {
-                Log.d("ERROR","NullPointerException");
-            } catch (JSONException e) {
-                e.printStackTrace();
+                fake_count=jsonObject.getInt(Parameters.FAKE_NEWS_COUNTER_FIELD);
+                real_count=jsonObject.getInt(Parameters.REAL_NEWS_COUNTER_FIELD);
+            } catch (NullPointerException | JSONException e) {
+                Log.d("ERROR",e.getMessage());
             }
+            //display counter of fake news
             updateCount(fake_count);
+            //calc fake news denisty
             double density;
             try {
                 density = ((double)fake_count)/((double)(real_count+fake_count));
             } catch (ArithmeticException e) {
                 density = 0;
             }
+            //display density of fake news
             fakeMeter.updateCount(density);
-
             //play sound if new fake news
             if(fake_count-pFake_count > 0 && !mp.isPlaying() && pFake_count > 0) {
-                Log.d("INFO", "playing sound!");
                 mp.start();
                 pFake_count = fake_count;
                 pReal_count = real_count;
@@ -97,7 +92,6 @@ public class Counter implements Runnable {
                 pFake_count = fake_count;
                 pReal_count = real_count;
             }
-
         }
     }
 }

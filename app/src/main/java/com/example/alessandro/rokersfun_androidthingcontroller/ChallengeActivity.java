@@ -1,5 +1,6 @@
 package com.example.alessandro.rokersfun_androidthingcontroller;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -25,7 +26,7 @@ import java.util.Random;
 
 public class ChallengeActivity extends Activity implements View.OnClickListener {
 
-    private static String URL=Parameters.BASE_URL + "/challenge";
+    private final String URL=Parameters.BASE_URL + Parameters.CHALLENGE_TOPIC;
 
     private Button mButtonRx, mButtonLx, mButtonReady;
     private ProgressBar mSpinner;
@@ -42,6 +43,7 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
 
+        //go fullscreen
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -50,7 +52,7 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
-        ((Button)findViewById(R.id.button_dashboard)).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_dashboard).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(ChallengeActivity.this,DashboardActivity.class));
@@ -73,6 +75,7 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         mWebViewLx.setWebViewClient(new MyWebViewClient());
         mWebViewRx.setWebViewClient(new MyWebViewClient());
 
+        //handle physical button press (RainbowHAT)
         try {
             buttonA = RainbowHat.openButtonA();
             buttonA.setOnButtonEventListener(new com.google.android.things.contrib.driver.button.Button.OnButtonEventListener() {
@@ -92,7 +95,7 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
                 }
             });
         } catch (IOException e) {
-            Log.d("ERROR","IOException Challenge");
+            Log.d("ERROR",e.getMessage());
         }
 
         mButtonLx.setOnClickListener(this);
@@ -108,25 +111,21 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         super.onDestroy();
         try {
             buttonA.close();
-        } catch (IOException e) {
-
-        } catch (NullPointerException e) {
-
+        } catch (IOException | NullPointerException e) {
+            Log.d("ERROR",e.getMessage());
         }
 
         try {
             buttonB.close();
-        } catch (IOException e) {
-
-        } catch (NullPointerException e) {
-
+        } catch (IOException | NullPointerException e) {
+            Log.d("ERROR",e.getMessage());
         }
     }
 
     private void showChallenge(String urlFake, String urlReal) {
-
+        //get a random position for real and fake news
         pos=random.nextInt(2);
-
+        //load the news in the position chosed randomly
         mWebViewLx.loadUrl((pos==0) ? urlFake : urlReal);
         mWebViewRx.loadUrl((pos==1) ? urlFake : urlReal);
 
@@ -154,14 +153,19 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
     public void onClick(View v) {
         boolean change=false;
         if(v.equals(mButtonLx) && !wait) {
+            //if button left was clicked
+            //setup the backgound color accordingly if the news was fake (RED) or not (GREEN)
             mButtonLx.setBackgroundColor((pos == 0) ? Color.RED : Color.GREEN);
+            //play a success sound or a fail sound
             if(pos==0 && !mediaPlayer_fail.isPlaying() && !mediaPlayer_success.isPlaying())
                 mediaPlayer_fail.start();
             else if(!mediaPlayer_fail.isPlaying() && !mediaPlayer_success.isPlaying())
                 mediaPlayer_success.start();
+            //setting variable to prevent other click and to return to the ready button "page"
             change=true;
             wait=true;
         } else if(v.equals(mButtonRx) && !wait) {
+            //same as above but for the right button
             mButtonRx.setBackgroundColor((pos==1) ? Color.RED : Color.GREEN);
             if(pos==1 && !mediaPlayer_fail.isPlaying() && !mediaPlayer_success.isPlaying())
                 mediaPlayer_fail.start();
@@ -171,48 +175,45 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
             wait=true;
         }
         else if(v.equals(mButtonReady) && wait) {
-            Log.d("INFO", "Button READY clicked");
             //show spinner
             mButtonReady.setVisibility(View.GONE);
             mSpinner.setVisibility(View.VISIBLE);
-
+            //get challenge data
             new HttpGetter_Challenge().execute(URL);
             wait=false;
         }
 
         if(change)
+            //wait for some time and the show the ready button for another challenge
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     changeVisibility();
                 }
-            },5*1000);
+            },Parameters.CHALLENGE_COMPLETED_DELAY);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class HttpGetter_Challenge extends HttpGetter {
-
-        private final String FAKE_FIELD = "fake";
-        private final String REAL_FIELD = "real";
 
         @Override
         protected void onPostExecute(String s) {
-            Log.d("INFO","Post Execute Challenge");
             String fakeNews = "";
             String realNews = "";
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                fakeNews = jsonObject.getJSONObject(FAKE_FIELD).getString("url");
-                realNews = jsonObject.getJSONObject(REAL_FIELD).getString("url");
-            } catch (NullPointerException e) {
-                Log.d("ERROR", "NullPointerException");
-            } catch (JSONException e) {
-                Log.d("ERROR", "JSONException");
+                //get fake news url
+                fakeNews = jsonObject.getJSONObject(Parameters.FAKE_NEWS_CHALLENGE_FIELD).getString(Parameters.NEWS_URL_FIELD);
+                //get real news url
+                realNews = jsonObject.getJSONObject(Parameters.REAL_NEWS_CHALLENGE_FIELD).getString(Parameters.NEWS_URL_FIELD);
+            } catch (NullPointerException | JSONException e) {
+                Log.d("ERROR",e.getMessage());
             }
             try {
-                //call function for the challenge
+                //call function for show the challenge
                 showChallenge(fakeNews, realNews);
             } catch (NullPointerException e) {
-                Log.d("ERROR", "NullPointerException");
+                Log.d("ERROR",e.getMessage());
             }
         }
     }
@@ -222,12 +223,14 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            if(++loading == 2) {
-                //show ready button
+            //when both webView have finished to load, changeVisibility (show the challenge) and reset the button (hide he spinner)
+            if(++loading >= 2) {
+                //show ready button (hide spinner)
                 mButtonReady.setVisibility(View.VISIBLE);
                 mSpinner.setVisibility(View.GONE);
 
                 changeVisibility();
+                //reset loading for next challenge
                 loading=0;
             }
         }
@@ -235,11 +238,16 @@ public class ChallengeActivity extends Activity implements View.OnClickListener 
         @Override
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
             super.onReceivedError(view, request, error);
+            //if some webView encounter some error on loading
+            //reset loaded counter
             loading=0;
+            //shoe button (hide spinner)
             mButtonReady.setVisibility(View.VISIBLE);
             mSpinner.setVisibility(View.GONE);
+            //change visibility to the ready button if needed
             if(mLoaderSpiner.getVisibility() == View.GONE)
                 changeVisibility();
+            //restart the challenge
             mButtonReady.callOnClick();
         }
     }
