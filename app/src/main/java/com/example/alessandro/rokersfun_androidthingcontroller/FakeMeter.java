@@ -8,14 +8,16 @@ import com.google.android.things.contrib.driver.apa102.Apa102;
 import com.google.android.things.contrib.driver.rainbowhat.RainbowHat;
 
 import java.io.IOException;
+import java.nio.file.AccessMode;
 
+@SuppressWarnings("WeakerAccess")
 public class FakeMeter {
 
     private FakeMeter_handler fakeMeter_handler;
-    public static int HW_RAINBOW_HAT=1;
-    public static int HW_RPI3=0;
+    static final int HW_RAINBOW_HAT=1;
+    static final int HW_RPI3=0;
 
-    public FakeMeter(int hw_type)  {
+    FakeMeter(int hw_type)  {
         if(hw_type == HW_RAINBOW_HAT)
             fakeMeter_handler = new RainbowHat_handler();
         else if(hw_type == HW_RPI3)
@@ -40,6 +42,7 @@ public class FakeMeter {
         if(p < 1)
             return Color.GREEN;
         else if(p < 2)
+            //orange ?
             return Color.RED | Color.YELLOW;
         else
             return Color.RED;
@@ -56,7 +59,7 @@ public class FakeMeter {
                     ledStrip = RainbowHat.openLedStrip();
                     ledStrip.setBrightness(2);
                 } catch (IOException e) {
-                    Log.d("INFO","Error opening strip led");
+                    Log.d("ERROR",e.getMessage());
                     return;
                 }
             int[] rainbow = new int[RainbowHat.LEDSTRIP_LENGTH];
@@ -67,17 +70,15 @@ public class FakeMeter {
             try {
                 ledStrip.write(rainbow);
             } catch (IOException e) {
-                Log.d("ERROR", "Unable to comunicate with strip led");
+                Log.d("ERROR",e.getMessage());
             }
         }
 
         public void close() {
             try {
                 ledStrip.close();
-            } catch (IOException e) {
-
-            } catch (NullPointerException e) {
-
+            } catch (IOException | NullPointerException e) {
+                Log.d("ERROR", e.getMessage());
             }
         }
     }
@@ -85,12 +86,12 @@ public class FakeMeter {
     private class RPI3_handler extends FakeMeter_handler {
         @Override
         public void displayDensiy(double density) {
-            return;
+
         }
 
         @Override
         public void close() {
-            return;
+
         }
     }
 }
